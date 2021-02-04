@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, jsonify
 import os
+
+from flask import Blueprint, render_template, request, jsonify
 from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token,
+    jwt_required, create_access_token,
     jwt_refresh_token_required, create_refresh_token,
     get_jwt_identity
 )
@@ -28,7 +29,9 @@ def auth():
     if not is_user_exist:
         try:
             user_id = user_collection.insert(dict1)
+            user = user_collection.find_one({"_id": user_id})
             ret = {
+                "user": user['name'],
                 'access_token': create_access_token(identity=str(user_id)),
                 'refresh_token': create_refresh_token(identity=str(user_id))
             }
@@ -40,6 +43,7 @@ def auth():
     else:
         try:
             ret = {
+                "user": str(is_user_exist["name"]),
                 'access_token': create_access_token(identity=str(is_user_exist["_id"])),
                 'refresh_token': create_refresh_token(identity=str(is_user_exist["_id"]))
             }
@@ -47,6 +51,7 @@ def auth():
         except Exception as e:
             print(e)
             return {"msg": "Please try again."}
+
 
 @main.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required
@@ -57,10 +62,9 @@ def refresh():
     }
     return jsonify(ret), 200
 
+
 @main.route('/protected', methods=['GET'])
 @jwt_required
 def protected():
     # username = get_jwt_identity()
     return render_template('private.html')
-
-

@@ -1,7 +1,9 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
+
 from .extensions import mongo
 from .views import main
-from flask_jwt_extended import JWTManager
+
 
 def create_app(config_object='app.settings'):
     app = Flask(__name__)
