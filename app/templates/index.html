@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Signin</title>
+    <meta name="google-signin-client_id" content="544296655739-2phmuct87b34n21bhikritsmgbe78odp.apps.googleusercontent.com">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+<body>
+    <h1>Please Login using below button.</h1>
+    <div class="g-signin2" data-onSuccess="onSignin"></div>
+</body>
+<script>
+    function onSignin(googleUser) {
+    var profile = googleUser.getBasicProfile()
+     var data = {name: profile.getName(), url: profile.getImageUrl(), email: profile.getEmail() }
+     $.post('/auth', data ,function(res) {
+        localStorage.setItem('access',res.access_token)
+        localStorage.setItem('refresh',res.refresh_token)
+        window.location.href = '/protected'
+     })
+     return false;
+    }
+</script>
+</html>
