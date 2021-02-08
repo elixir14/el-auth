@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Signin</title>
+    <meta name="google-signin-client_id"
+          content="544296655739-2phmuct87b34n21bhikritsmgbe78odp.apps.googleusercontent.com">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+</head>
+<body>
+<div id="#login">
+    <h1>Please Login using below button.</h1>
+    <div class="g-signin2" data-onSuccess="onSignin"></div>
+    <div style="margin: 30px auto">
+        <fb:login-button
+                scope="public_profile,email"
+                onlogin="checkLoginState();">
+        </fb:login-button>
+    </div>
+</div>
+<div id="#loggedIn" style="display: none;">
+    <div id="#user"></div>
+    <button onclick="signOut()">log out</button>
+</div>
+</body>
+<script>
+    function onSignin(googleUser) {
+    var profile = googleUser.getBasicProfile()
+     var data = {name: profile.getName(), url: profile.getImageUrl(), email: profile.getEmail() }
+     $.post('/auth', data ,function(res) {
+        localStorage.setItem('access',res.access_token)
+        localStorage.setItem('refresh',res.refresh_token)
+        document.getElementById("#login").style.display = 'none'
+        document.getElementById("#loggedIn").style.display = 'block'
+        document.getElementById("#user").innerHTML = res.user
+     })
+     return false;
+    }
+    function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      document.getElementById("#login").style.display = 'block'
+        document.getElementById("#loggedIn").style.display = 'none'
+        document.getElementById("#user").innerHTML = ''
+    });
+  }
+function checkLoginState() {
+  FB.getLoginStatus(function(response) {
+  FB.api('/me?locale=en_US&fields=name,email,picture', function(response) {
+      var data = {name: response.name, url: response.picture.data.url, email: response.email }
+     $.post('/auth', data ,function(res) {
+        localStorage.setItem('access',res.access_token)
+        localStorage.setItem('refresh',res.refresh_token)
+        document.getElementById("#login").style.display = 'none'
+        document.getElementById("#loggedIn").style.display = 'block'
+        document.getElementById("#user").innerHTML = res.user
+     })
+    });
+    statusChangeCallback(response);
+  });
+}
+
+
+</script>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '703306000354618',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v9.0'
+    });
+
+    FB.AppEvents.logPageView();
+
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+
+
+
+</script>
+</html>
+
